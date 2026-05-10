@@ -40,7 +40,7 @@ print(int(d.get("rate_limits", {}).get("five_hour", {}).get("used_percentage", 0
 rl5h=${rl5h:-0}
 
 reset5h=$(echo "$input" | python3 -c '
-import sys, json, time
+import sys, json, time, datetime
 d = json.load(sys.stdin)
 resets_at = d.get("rate_limits", {}).get("five_hour", {}).get("resets_at", 0)
 if not resets_at:
@@ -48,7 +48,9 @@ if not resets_at:
 else:
     secs = max(0, int(resets_at - time.time()))
     h, m = divmod(secs // 60, 60)
-    print(f"{h}h{m}m" if h else f"{m}m")
+    rel = f"{h}h{m}m" if h else f"{m}m"
+    exact = datetime.datetime.fromtimestamp(resets_at).strftime("%H:%M")
+    print(f"{rel} {exact}")
 ' 2>/dev/null)
 reset5h=${reset5h:-""}
 
@@ -60,7 +62,7 @@ print(int(d.get("rate_limits", {}).get("seven_day", {}).get("used_percentage", 0
 rl7d=${rl7d:-0}
 
 reset7d=$(echo "$input" | python3 -c '
-import sys, json, time
+import sys, json, time, datetime
 d = json.load(sys.stdin)
 resets_at = d.get("rate_limits", {}).get("seven_day", {}).get("resets_at", 0)
 if not resets_at:
@@ -69,7 +71,9 @@ else:
     secs = max(0, int(resets_at - time.time()))
     h, rem = divmod(secs // 60, 60)
     d2 = h // 24
-    print(f"{d2}d{h%24}h" if d2 else f"{h}h{rem}m" if h else f"{rem}m")
+    rel = f"{d2}d{h%24}h" if d2 else f"{h}h{rem}m" if h else f"{rem}m"
+    exact = datetime.datetime.fromtimestamp(resets_at).strftime("%H:%M")
+    print(f"{rel} {exact}")
 ' 2>/dev/null)
 reset7d=${reset7d:-""}
 
